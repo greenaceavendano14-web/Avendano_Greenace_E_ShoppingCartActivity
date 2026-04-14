@@ -1,1 +1,0 @@
-# Avendano_Greenace_E_ShoppingCartActivity
