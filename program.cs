@@ -58,3 +58,29 @@ namespace shoppingcart
                 RemainingStock=10
             }
             };
+
+            int[] cartIds = new int[10];
+            int[] cartQty = new int[10];
+            double[] cartSub = new double[10];
+            int cartCount = 0;
+
+            
+            string choice = "Y";
+
+            do
+            {
+                Console.WriteLine("\n----- STORE MENU -----");
+                Console.WriteLine("ID    Name            Price      Stock");
+
+                for (int i = 0; i < product.Length; i++)
+                {
+                    product[i].DisplayProduct();
+                }
+
+                Console.Write("\nEnter product ID: ");
+                int id;
+                if (!int.TryParse(Console.ReadLine(), out id) || id < 1 || id > product.Length)
+                {
+                    Console.WriteLine("Invalid product number!");
+                    continue;
+                }
