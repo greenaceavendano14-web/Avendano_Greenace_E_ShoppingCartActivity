@@ -11,13 +11,12 @@ I used AI because some parts of the program were a bit confusing at first, espec
 AI helped me see the process more clearly and made it easier for me to follow the requirements. 
 It also helped me make my flowchart simple and easy to understand.
 
-Prompts / Questions I Asked
+Prompts / Questions I Asked:
 How do I create a shopping cart system in C# using arrays?
 How do I update an existing item in the cart instead of adding a duplicate?
 How do I deduct stock after adding an item to the cart?
 
-Changes / Improvements I Made
-
+Changes / Improvements I Made:
 After using AI, I didn’t just copy everything. 
 I made sure to understand the code and adjusted it to match my own style. 
 I simplified the flowchart, fixed some logic parts, and made sure everything follows the project requirements. 
