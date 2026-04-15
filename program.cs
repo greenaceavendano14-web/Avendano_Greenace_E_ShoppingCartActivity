@@ -26,36 +26,36 @@ namespace shoppingcart
             {
                 Id=1,
                 Name="Mouse",
-                Price=350,
-                RemainingStock=50
+                Price=400,
+                RemainingStock=40
             },
             new Product
             {
                 Id=2,
                 Name="Keyboard",
-                Price=800,
-                RemainingStock=30
+                Price=750,
+                RemainingStock=25
             },
             new Product
             {
                 Id=3,
                 Name="Headset",
-                Price=1200,
-                RemainingStock=20
+                Price=1000,
+                RemainingStock=15
             },
             new Product
             {
                 Id=4,
                 Name="Flash Drive",
-                Price=500,
-                RemainingStock=15
+                Price=350,
+                RemainingStock=25
             },
             new Product
             {
                 Id=5,
                 Name="Monitor",
-                Price=6500,
-                RemainingStock=10
+                Price=4500,
+                RemainingStock=15
             }
             };
 
@@ -69,7 +69,7 @@ namespace shoppingcart
 
             do
             {
-                Console.WriteLine("\n----- STORE MENU -----");
+                Console.WriteLine("\n***** STORE MENU *****");
                 Console.WriteLine("ID    Name            Price      Stock");
 
                 for (int i = 0; i < product.Length; i++)
@@ -145,7 +145,7 @@ namespace shoppingcart
 
             double grandTotal = 0;
 
-            Console.WriteLine("\n----- RECEIPT -----");
+            Console.WriteLine("\n***** RECEIPT *****");
             Console.WriteLine("Item            Quantity   Subtotal");
 
             for (int i = 0; i < cartCount; i++)
@@ -154,3 +154,28 @@ namespace shoppingcart
                 Console.WriteLine($"{name,-15} {cartQty[i],-10} {cartSub[i],-10}");
                 grandTotal += cartSub[i];
             }
+
+            Console.WriteLine($"\nGrand Total: {grandTotal}");
+
+            double discount = 0;
+
+            if (grandTotal >= 5000)
+            {
+                discount = grandTotal * 0.10;
+                Console.WriteLine($"Discount (10%): {discount}");
+            }
+
+            double finalTotal = grandTotal - discount;
+
+            Console.WriteLine($"Final Total: {finalTotal}");
+
+            Console.WriteLine("\n<<<<< UPDATED STOCK >>>>>");
+            Console.WriteLine("ID    Name            Price      Stock");
+
+            for (int i = 0; i < product.Length; i++)
+            {
+                product[i].DisplayProduct();
+            }
+        }
+    }
+}
