@@ -24,3 +24,37 @@ namespace shoppingcart
             Product[] product = new Product[] {
             new Product
             {
+                Id=1,
+                Name="Mouse",
+                Price=350,
+                RemainingStock=50
+            },
+            new Product
+            {
+                Id=2,
+                Name="Keyboard",
+                Price=800,
+                RemainingStock=30
+            },
+            new Product
+            {
+                Id=3,
+                Name="Headset",
+                Price=1200,
+                RemainingStock=20
+            },
+            new Product
+            {
+                Id=4,
+                Name="Flash Drive",
+                Price=500,
+                RemainingStock=15
+            },
+            new Product
+            {
+                Id=5,
+                Name="Monitor",
+                Price=6500,
+                RemainingStock=10
+            }
+            };
