@@ -13,27 +13,93 @@ namespace shoppingcart
         {
             Console.WriteLine($"{Id,-5} {Name,-15} {Category,-15} {Price,-10} {RemainingStock,-10}");
         }
-        public double GetItemTotal(int quantity)
-        {
-            return Price * quantity;
-        }
-         }
-    class Program
+        public double GetItemTotal(int qty) => Price * qty;
+    }
+    class Cart
     {
-        static int[]    cartIds  = new int[20];
-        static int[]    cartQty  = new int[20];
-        static double[] cartSub  = new double[20];
-        static int      cartCount = 0;
+        CartItem[] items = new CartItem[20];
+        int count = 0;
 
-        static int      receiptCounter = 1;
-        static int[]    histReceipt = new int[100];
-        static double[] histTotal   = new double[100];
-        static string[] histDate    = new string[100];
-        static int      histCount   = 0;
+        public int Count => count;
 
-        static void Main(string[] args)
+        public CartItem GetItem(int index) => items[index];
+
+        public bool AddItem(int productId, int qty, double subtotal)
         {
-           Product[] products =
+            for (int i = 0; i < count; i++)
+            {
+                if (items[i].ProductId == productId)
+                {
+                    items[i].Quantity += qty;
+                    items[i].Subtotal += subtotal;
+                    return true;
+                }
+            }
+            if (count >= items.Length) return false;
+            items[count] = new CartItem { ProductId = productId, Quantity = qty, Subtotal = subtotal };
+            count++;
+            return true;
+        }
+
+        public void RemoveItem(int index)
+        {
+            for (int i = index; i < count - 1; i++)
+                items[i] = items[i + 1];
+            items[count - 1] = null;
+            count--;
+        }
+
+        public void UpdateItem(int index, int newQty, double newSubtotal)
+        {
+            items[index].Quantity = newQty;
+            items[index].Subtotal = newSubtotal;
+        }
+
+        public void Clear()
+        {
+            for (int i = 0; i < count; i++) items[i] = null;
+            count = 0;
+        }
+
+        public double GetGrandTotal()
+        {
+            double total = 0;
+            for (int i = 0; i < count; i++) total += items[i].Subtotal;
+            return total;
+        }
+   class OrderHistory
+    {
+        int[]    receipts = new int[100];
+        double[] totals   = new double[100];
+        string[] dates    = new string[100];
+        int count = 0;
+
+        public void AddOrder(int receiptNo, double total, string date)
+        {
+            receipts[count] = receiptNo;
+            totals[count]   = total;
+            dates[count]    = date;
+            count++;
+        }
+
+        public void Display()
+        {
+            if (count == 0) { Console.WriteLine("No orders yet."); return; }
+            Console.WriteLine("\n=== ORDER HISTORY ===");
+            for (int i = 0; i < count; i++)
+                Console.WriteLine($"Receipt #{receipts[i].ToString("D4")} | {dates[i]} | PHP {totals[i]}");
+        }
+    }
+    class Program
+     {
+        Product[]    products;
+        Cart         cart;
+        OrderHistory history;
+        int          receiptCounter;
+
+        public Program()
+        {
+            products = new Product[]
             {
                 new Product { Id=1,  Name="Mouse",        Category="Electronics", Price=400,  RemainingStock=40  },
                 new Product { Id=2,  Name="Keyboard",     Category="Electronics", Price=750,  RemainingStock=25  },
@@ -51,7 +117,10 @@ namespace shoppingcart
                 new Product { Id=14, Name="Wrench Set",   Category="Hardware",    Price=799,  RemainingStock=14  },
                 new Product { Id=15, Name="Tape Measure", Category="Hardware",    Price=110,  RemainingStock=23  },
             };
-
+            cart           = new Cart();
+            history        = new OrderHistory();
+            receiptCounter = 1;
+        }
             bool running = true;
             while (running)
             {
@@ -70,6 +139,8 @@ namespace shoppingcart
                     case "6": running = false; Console.WriteLine("Goodbye!"); break;
                     default:  Console.WriteLine("Invalid option."); break;
                 }
+            }
+        }
                 Console.Write("\nEnter product ID: ");
                 int id;
                 if (!int.TryParse(Console.ReadLine(), out id) || id < 1 || id > product.Length)
