@@ -1,20 +1,30 @@
 using System;
+
 namespace shoppingcart
 {
     class Product
     {
         public int Id;
         public string Name;
-        public double Price;
         public string Category;
+        public double Price;
         public int RemainingStock;
 
         public void DisplayProduct()
         {
             Console.WriteLine($"{Id,-5} {Name,-15} {Category,-15} {Price,-10} {RemainingStock,-10}");
         }
+
         public double GetItemTotal(int qty) => Price * qty;
     }
+
+    class CartItem
+    {
+        public int ProductId;
+        public int Quantity;
+        public double Subtotal;
+    }
+
     class Cart
     {
         CartItem[] items = new CartItem[20];
@@ -67,7 +77,9 @@ namespace shoppingcart
             for (int i = 0; i < count; i++) total += items[i].Subtotal;
             return total;
         }
-   class OrderHistory
+    }
+
+    class OrderHistory
     {
         int[]    receipts = new int[100];
         double[] totals   = new double[100];
@@ -90,14 +102,15 @@ namespace shoppingcart
                 Console.WriteLine($"Receipt #{receipts[i].ToString("D4")} | {dates[i]} | PHP {totals[i]}");
         }
     }
-    class Program
-     {
+
+    class Shop
+    {
         Product[]    products;
         Cart         cart;
         OrderHistory history;
         int          receiptCounter;
 
-        public Program()
+        public Shop()
         {
             products = new Product[]
             {
@@ -106,21 +119,24 @@ namespace shoppingcart
                 new Product { Id=3,  Name="Headset",      Category="Electronics", Price=1000, RemainingStock=15  },
                 new Product { Id=4,  Name="Flash Drive",  Category="Electronics", Price=350,  RemainingStock=25  },
                 new Product { Id=5,  Name="Monitor",      Category="Electronics", Price=4500, RemainingStock=15  },
-                new Product { Id=6,  Name="Webcam",       Category="Electronics", Price=1150, RemainingStock=20  },
-                new Product { Id=7,  Name="USB Hub",      Category="Electronics", Price=400,  RemainingStock=27  },
-                new Product { Id=8,  Name="T-Shirt",      Category="Clothing",    Price=210,  RemainingStock=23  },
-                new Product { Id=9,  Name="Jacket",       Category="Clothing",    Price=799,  RemainingStock=25  },
-                new Product { Id=10, Name="Jogger Pants", Category="Clothing",    Price=499,  RemainingStock=30  },
-                new Product { Id=11, Name="Notebook",     Category="School",      Price=35,   RemainingStock=70 },
-                new Product { Id=12, Name="Ballpen",      Category="School",      Price=10,   RemainingStock=115 },
-                new Product { Id=13, Name="Drill",        Category="Hardware",    Price=2399, RemainingStock=13  },
-                new Product { Id=14, Name="Wrench Set",   Category="Hardware",    Price=799,  RemainingStock=14  },
-                new Product { Id=15, Name="Tape Measure", Category="Hardware",    Price=110,  RemainingStock=23  },
+                new Product { Id=6,  Name="Webcam",       Category="Electronics", Price=1200, RemainingStock=20  },
+                new Product { Id=7,  Name="USB Hub",      Category="Electronics", Price=450,  RemainingStock=30  },
+                new Product { Id=8,  Name="T-Shirt",      Category="Clothing",    Price=250,  RemainingStock=30  },
+                new Product { Id=9,  Name="Jacket",       Category="Clothing",    Price=899,  RemainingStock=20  },
+                new Product { Id=10, Name="Jogger Pants", Category="Clothing",    Price=599,  RemainingStock=25  },
+                new Product { Id=11, Name="Notebook",     Category="School",      Price=50,   RemainingStock=100 },
+                new Product { Id=12, Name="Ballpen",      Category="School",      Price=15,   RemainingStock=200 },
+                new Product { Id=13, Name="Drill",        Category="Hardware",    Price=2500, RemainingStock=10  },
+                new Product { Id=14, Name="Wrench Set",   Category="Hardware",    Price=850,  RemainingStock=15  },
+                new Product { Id=15, Name="Tape Measure", Category="Hardware",    Price=120,  RemainingStock=40  },
             };
             cart           = new Cart();
             history        = new OrderHistory();
             receiptCounter = 1;
         }
+
+        public void Run()
+        {
             bool running = true;
             while (running)
             {
@@ -128,20 +144,20 @@ namespace shoppingcart
                 Console.WriteLine("[1] Shop  [2] Manage Cart  [3] Search");
                 Console.WriteLine("[4] Filter by Category  [5] Order History  [6] Exit");
                 Console.Write("Choose: ");
-
                 switch (Console.ReadLine())
                 {
-                    case "1": Shop(products);           break;
-                    case "2": ManageCart(products);     break;
-                    case "3": Search(products);         break;
-                    case "4": FilterCategory(products); break;
-                    case "5": ShowHistory();            break;
+                    case "1": AddToCart();            break;
+                    case "2": ManageCart();      break;
+                    case "3": Search();          break;
+                    case "4": FilterCategory();  break;
+                    case "5": history.Display(); break;
                     case "6": running = false; Console.WriteLine("Goodbye!"); break;
                     default:  Console.WriteLine("Invalid option."); break;
                 }
             }
         }
-        void Shop()
+
+        void AddToCart()
         {
             while (true)
             {
@@ -192,7 +208,8 @@ namespace shoppingcart
                 }
             }
         }
-         void ViewCart()
+
+        void ViewCart()
         {
             if (cart.Count == 0) { Console.WriteLine("Cart is empty."); return; }
             Console.WriteLine($"\n{"#",-5} {"Item",-15} {"Qty",-10} {"Subtotal",-10}");
@@ -218,6 +235,7 @@ namespace shoppingcart
             Console.WriteLine($"{products[item.ProductId-1].Name} removed.");
             cart.RemoveItem(idx);
         }
+
         void UpdateQty()
         {
             ViewCart();
@@ -298,41 +316,61 @@ namespace shoppingcart
             receiptCounter++;
             cart.Clear();
 
-            } while (choice == "Y");
+            Console.WriteLine("\n=== LOW STOCK ALERT ===");
+            bool anyLow = false;
+            for (int i = 0; i < products.Length; i++)
+                if (products[i].RemainingStock <= 5) { Console.WriteLine($"WARNING: {products[i].Name} - only {products[i].RemainingStock} left!"); anyLow = true; }
+            if (!anyLow) Console.WriteLine("All products have sufficient stock.");
 
-            double grandTotal = 0;
+            Console.WriteLine("\n=== UPDATED STOCK ===");
+            Console.WriteLine($"{"ID",-5} {"Name",-15} {"Category",-15} {"Price",-10} {"Stock",-10}");
+            foreach (var item in products) item.DisplayProduct();
+        }
 
-            Console.WriteLine("\n***** RECEIPT *****");
-            Console.WriteLine("Item            Quantity   Subtotal");
+        void Search()
+        {
+            Console.Write("Search product name: ");
+            string key = Console.ReadLine().ToLower();
+            bool found = false;
+            Console.WriteLine($"\n{"ID",-5} {"Name",-15} {"Category",-15} {"Price",-10} {"Stock",-10}");
+            foreach (var item in products)
+                if (item.Name.ToLower().Contains(key)) { item.DisplayProduct(); found = true; }
+            if (!found) Console.WriteLine("No products found.");
+        }
 
-            for (int i = 0; i < cartCount; i++)
+        void FilterCategory()
+        {
+            string[] cats = { "Electronics", "School", "Clothing", "Hardware" };
+            Console.WriteLine("\n[1] Electronics  [2] School  [3] Clothing  [4] Hardware");
+            Console.Write("Choose: ");
+            if (!int.TryParse(Console.ReadLine(), out int c) || c < 1 || c > 4) { Console.WriteLine("Invalid."); return; }
+            string cat = cats[c - 1];
+            Console.WriteLine($"\n--- {cat} ---");
+            Console.WriteLine($"{"ID",-5} {"Name",-15} {"Category",-15} {"Price",-10} {"Stock",-10}");
+            bool found = false;
+            foreach (var item in products)
+                if (item.Category == cat) { item.DisplayProduct(); found = true; }
+            if (!found) Console.WriteLine("No products found.");
+        }
+
+        string YesNo(string prompt)
+        {
+            while (true)
             {
-                string name = product[cartIds[i] - 1].Name;
-                Console.WriteLine($"{name,-15} {cartQty[i],-10} {cartSub[i],-10}");
-                grandTotal += cartSub[i];
-            }
-
-            Console.WriteLine($"\nGrand Total: {grandTotal}");
-
-            double discount = 0;
-
-            if (grandTotal >= 5000)
-            {
-                discount = grandTotal * 0.10;
-                Console.WriteLine($"Discount (10%): {discount}");
-            }
-
-            double finalTotal = grandTotal - discount;
-
-            Console.WriteLine($"Final Total: {finalTotal}");
-
-            Console.WriteLine("\n<<<<< UPDATED STOCK >>>>>");
-            Console.WriteLine("ID    Name            Price      Stock");
-
-            for (int i = 0; i < product.Length; i++)
-            {
-                product[i].DisplayProduct();
+                Console.Write(prompt);
+                string input = Console.ReadLine().Trim().ToUpper();
+                if (input == "Y" || input == "N") return input;
+                Console.WriteLine("Invalid. Enter Y or N only.");
             }
         }
     }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+           new Shop().Run();
+        }
+    }
 }
+
