@@ -218,19 +218,85 @@ namespace shoppingcart
             Console.WriteLine($"{products[item.ProductId-1].Name} removed.");
             cart.RemoveItem(idx);
         }
+        void UpdateQty()
+        {
+            ViewCart();
+            if (cart.Count == 0) return;
 
-                    cartIds[cartCount] = id;
-                    cartQty[cartCount] = qty;
-                    cartSub[cartCount] = selected.GetItemTotal(qty);
-                    cartCount++;
-                }
+            Console.Write("Item number to update (0 to cancel): ");
+            if (!int.TryParse(Console.ReadLine(), out int n) || n < 0 || n > cart.Count) { Console.WriteLine("Invalid."); return; }
+            if (n == 0) return;
 
-                selected.RemainingStock -= qty;
+            int idx = n - 1;
+            CartItem item  = cart.GetItem(idx);
+            Product prod   = products[item.ProductId - 1];
+            int available  = prod.RemainingStock + item.Quantity;
 
-                Console.WriteLine("Item added to cart!");
+            Console.Write($"New quantity (available: {available}): ");
+            if (!int.TryParse(Console.ReadLine(), out int newQty) || newQty <= 0 || newQty > available)
+            {
+                Console.WriteLine("Invalid quantity. No changes made.");
+                return;
+            }
 
-                Console.Write("Add more? (Y/N): ");
-                choice = Console.ReadLine().ToUpper();
+            prod.RemainingStock = available - newQty;
+            cart.UpdateItem(idx, newQty, prod.GetItemTotal(newQty));
+            Console.WriteLine("Quantity updated.");
+        }
+
+        void ClearCart()
+        {
+            if (cart.Count == 0) { Console.WriteLine("Cart is already empty."); return; }
+            if (YesNo("Clear cart? (Y/N): ") == "N") return;
+
+            for (int i = 0; i < cart.Count; i++)
+            {
+                CartItem item = cart.GetItem(i);
+                products[item.ProductId - 1].RemainingStock += item.Quantity;
+            }
+            cart.Clear();
+            Console.WriteLine("Cart cleared.");
+        }
+
+        void Checkout()
+        {
+            double grand     = cart.GetGrandTotal();
+            double discount  = grand >= 5000 ? grand * 0.10 : 0;
+            double finalTotal = grand - discount;
+
+            double payment;
+            while (true)
+            {
+                Console.Write($"Final Total: PHP {finalTotal}\nEnter payment: PHP ");
+                if (!double.TryParse(Console.ReadLine(), out payment) || payment < finalTotal)
+                { Console.WriteLine("Insufficient or invalid payment."); continue; }
+                break;
+            }
+
+            string receiptNo = receiptCounter.ToString("D4");
+            string now       = DateTime.Now.ToString("MMMM dd, yyyy h:mm tt");
+
+            Console.WriteLine($"\n{'=',44}");
+            Console.WriteLine($"  RECEIPT No: {receiptNo}     Date: {now}");
+            Console.WriteLine($"{'=',44}");
+            Console.WriteLine($"{"Item",-15} {"Qty",-10} {"Subtotal",-10}");
+            Console.WriteLine($"{'-',44}");
+            for (int i = 0; i < cart.Count; i++)
+            {
+                CartItem item = cart.GetItem(i);
+                Console.WriteLine($"{products[item.ProductId-1].Name,-15} {item.Quantity,-10} PHP {item.Subtotal,-10}");
+            }
+            Console.WriteLine($"{'-',44}");
+            Console.WriteLine($"Grand Total:  PHP {grand}");
+            if (discount > 0) Console.WriteLine($"Discount 10%: PHP {discount}");
+            Console.WriteLine($"Final Total:  PHP {finalTotal}");
+            Console.WriteLine($"Payment:      PHP {payment}");
+            Console.WriteLine($"Change:       PHP {payment - finalTotal}");
+            Console.WriteLine($"{'=',44}");
+
+            history.AddOrder(receiptCounter, finalTotal, now);
+            receiptCounter++;
+            cart.Clear();
 
             } while (choice == "Y");
 
