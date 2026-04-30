@@ -141,8 +141,7 @@ namespace shoppingcart
             while (running)
             {
                 Console.WriteLine("\n=== MAIN MENU ===");
-                Console.WriteLine("[1] Shop  [2] Manage Cart  [3] Search");
-                Console.WriteLine("[4] Filter by Category  [5] Order History  [6] Exit");
+                Console.WriteLine("[1] Shop             [2] Manage Cart \n[3] Search           [4] Filter by Category  \n[5] Order History    [6] Exit");
                 Console.Write("Choose: ");
                 switch (Console.ReadLine())
                 {
@@ -191,7 +190,7 @@ namespace shoppingcart
             while (true)
             {
                 Console.WriteLine("\n=== CART MANAGEMENT ===");
-                Console.WriteLine("[1] View  [2] Remove  [3] Update Qty  [4] Clear  [5] Checkout  [6] Back");
+                Console.WriteLine("[1] View          [2] Remove  \n[3] Update Qty    [4] Clear  \n[5] Checkout      [6] Back");
                 Console.Write("Choose: ");
                 switch (Console.ReadLine())
                 {
