@@ -141,56 +141,83 @@ namespace shoppingcart
                 }
             }
         }
-                Console.Write("\nEnter product ID: ");
-                int id;
-                if (!int.TryParse(Console.ReadLine(), out id) || id < 1 || id > product.Length)
-                {
-                    Console.WriteLine("Invalid product number!");
-                    continue;
-                }
+        void Shop()
+        {
+            while (true)
+            {
+                Console.WriteLine("\n***** STORE MENU *****");
+                Console.WriteLine($"{"ID",-5} {"Name",-15} {"Category",-15} {"Price",-10} {"Stock",-10}");
+                foreach (var item in products) item.DisplayProduct();
 
-                 Product selected = product[id - 1];
+                Console.Write("\nEnter product ID (0 to go back): ");
+                if (!int.TryParse(Console.ReadLine(), out int id)) { Console.WriteLine("Invalid input."); continue; }
+                if (id == 0) break;
+                if (id < 1 || id > products.Length) { Console.WriteLine("Invalid product ID."); continue; }
 
-                if (selected.RemainingStock == 0)
-                {
-                    Console.WriteLine("Out of stock!");
-                    continue;
-                }
+                Product p = products[id - 1];
+                if (p.RemainingStock == 0) { Console.WriteLine("Out of stock!"); continue; }
 
                 Console.Write("Enter quantity: ");
-                int qty;
-                if (!int.TryParse(Console.ReadLine(), out qty) || qty <= 0)
-                {
-                    Console.WriteLine("Invalid quantity!");
-                    continue;
-                }
+                if (!int.TryParse(Console.ReadLine(), out int qty) || qty <= 0) { Console.WriteLine("Invalid quantity."); continue; }
+                if (qty > p.RemainingStock) { Console.WriteLine($"Only {p.RemainingStock} left."); continue; }
 
-                if (qty > selected.RemainingStock)
-                {
-                    Console.WriteLine("Not enough stock available.");
-                    continue;
-                }
+                if (!cart.AddItem(id, qty, p.GetItemTotal(qty))) { Console.WriteLine("Cart is full."); continue; }
 
-                bool found = false;
+                p.RemainingStock -= qty;
+                Console.WriteLine("Item added to cart!");
 
-                for (int i = 0; i < cartCount; i++)
+                if (YesNo("Add more items? (Y/N): ") == "N") break;
+            }
+        }
+
+        void ManageCart()
+        {
+            while (true)
+            {
+                Console.WriteLine("\n=== CART MANAGEMENT ===");
+                Console.WriteLine("[1] View  [2] Remove  [3] Update Qty  [4] Clear  [5] Checkout  [6] Back");
+                Console.Write("Choose: ");
+                switch (Console.ReadLine())
                 {
-                    if (cartIds[i] == id)
-                    {
-                        cartQty[i] += qty;
-                        cartSub[i] = product[id - 1].GetItemTotal(cartQty[i]);
-                        found = true;
+                    case "1": ViewCart();   break;
+                    case "2": RemoveItem(); break;
+                    case "3": UpdateQty();  break;
+                    case "4": ClearCart();  break;
+                    case "5":
+                        if (cart.Count == 0) Console.WriteLine("Cart is empty.");
+                        else { Checkout(); return; }
                         break;
-                    }
+                    case "6": return;
+                    default:  Console.WriteLine("Invalid option."); break;
                 }
+            }
+        }
+         void ViewCart()
+        {
+            if (cart.Count == 0) { Console.WriteLine("Cart is empty."); return; }
+            Console.WriteLine($"\n{"#",-5} {"Item",-15} {"Qty",-10} {"Subtotal",-10}");
+            for (int i = 0; i < cart.Count; i++)
+            {
+                CartItem item = cart.GetItem(i);
+                Console.WriteLine($"{i+1,-5} {products[item.ProductId-1].Name,-15} {item.Quantity,-10} PHP {item.Subtotal,-10}");
+            }
+        }
 
-                if (!found)
-                {
-                    if (cartCount >= cartIds.Length)
-                    {
-                        Console.WriteLine("Cart is full.");
-                        continue;
-                    }
+        void RemoveItem()
+        {
+            ViewCart();
+            if (cart.Count == 0) return;
+
+            Console.Write("Item number to remove (0 to cancel): ");
+            if (!int.TryParse(Console.ReadLine(), out int n) || n < 0 || n > cart.Count) { Console.WriteLine("Invalid."); return; }
+            if (n == 0) return;
+
+            int idx = n - 1;
+            CartItem item = cart.GetItem(idx);
+            products[item.ProductId - 1].RemainingStock += item.Quantity;
+            Console.WriteLine($"{products[item.ProductId-1].Name} removed.");
+            cart.RemoveItem(idx);
+        }
 
                     cartIds[cartCount] = id;
                     cartQty[cartCount] = qty;
