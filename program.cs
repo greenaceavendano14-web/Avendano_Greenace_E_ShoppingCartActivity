@@ -4,31 +4,95 @@ namespace shoppingcart
 {
     class Product
     {
-        public int Id;
-        public string Name;
-        public string Category;
-        public double Price;
-        public int RemainingStock;
+        private int id;
+        private string name;
+        private string category;
+        private double price;
+        private int remainingStock;
+
+        public int Id
+        {
+            get { return id; }
+            set { id = value; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
+
+        public string Category
+        {
+            get { return category; }
+            set { category = value; }
+        }
+
+        public double Price
+        {
+            get { return price; }
+            set
+            {
+                if (value < 0) throw new ArgumentException("Price cannot be negative.");
+                price = value;
+            }
+        }
+
+        public int RemainingStock
+        {
+            get { return remainingStock; }
+            set
+            {
+                if (value < 0) throw new ArgumentException("Stock cannot be negative.");
+                remainingStock = value;
+            }
+        }
 
         public void DisplayProduct()
         {
-            Console.WriteLine($"{Id,-5} {Name,-15} {Category,-15} {Price,-10} {RemainingStock,-10}");
+            Console.WriteLine($"{id,-5} {name,-15} {category,-15} {price,-10} {remainingStock,-10}");
         }
 
-        public double GetItemTotal(int qty) => Price * qty;
+        public double GetItemTotal(int qty) => price * qty;
     }
 
     class CartItem
     {
-        public int ProductId;
-        public int Quantity;
-        public double Subtotal;
+        private int productId;
+        private int quantity;
+        private double subtotal;
+
+        public int ProductId
+        {
+            get { return productId; }
+            set { productId = value; }
+        }
+
+        public int Quantity
+        {
+            get { return quantity; }
+            set
+            {
+                if (value < 0) throw new ArgumentException("Quantity cannot be negative.");
+                quantity = value;
+            }
+        }
+
+        public double Subtotal
+        {
+            get { return subtotal; }
+            set
+            {
+                if (value < 0) throw new ArgumentException("Subtotal cannot be negative.");
+                subtotal = value;
+            }
+        }
     }
 
     class Cart
     {
-        CartItem[] items = new CartItem[20];
-        int count = 0;
+        private CartItem[] items = new CartItem[20];
+        private int count = 0;
 
         public int Count => count;
 
@@ -81,10 +145,10 @@ namespace shoppingcart
 
     class OrderHistory
     {
-        int[]    receipts = new int[100];
-        double[] totals   = new double[100];
-        string[] dates    = new string[100];
-        int count = 0;
+        private int[]    receipts = new int[100];
+        private double[] totals   = new double[100];
+        private string[] dates    = new string[100];
+        private int count = 0;
 
         public void AddOrder(int receiptNo, double total, string date)
         {
@@ -105,10 +169,10 @@ namespace shoppingcart
 
     class Shop
     {
-        Product[]    products;
-        Cart         cart;
-        OrderHistory history;
-        int          receiptCounter;
+        private Product[]    products;
+        private Cart         cart;
+        private OrderHistory history;
+        private int          receiptCounter;
 
         public Shop()
         {
@@ -156,7 +220,7 @@ namespace shoppingcart
             }
         }
 
-        void AddToCart()
+        private void AddToCart()
         {
             while (true)
             {
@@ -185,7 +249,7 @@ namespace shoppingcart
             }
         }
 
-        void ManageCart()
+        private void ManageCart()
         {
             while (true)
             {
@@ -208,7 +272,7 @@ namespace shoppingcart
             }
         }
 
-        void ViewCart()
+        private void ViewCart()
         {
             if (cart.Count == 0) { Console.WriteLine("Cart is empty."); return; }
             Console.WriteLine($"\n{"#",-5} {"Item",-15} {"Qty",-10} {"Subtotal",-10}");
@@ -219,7 +283,7 @@ namespace shoppingcart
             }
         }
 
-        void RemoveItem()
+        private void RemoveItem()
         {
             ViewCart();
             if (cart.Count == 0) return;
@@ -235,7 +299,7 @@ namespace shoppingcart
             cart.RemoveItem(idx);
         }
 
-        void UpdateQty()
+        private void UpdateQty()
         {
             ViewCart();
             if (cart.Count == 0) return;
@@ -261,7 +325,7 @@ namespace shoppingcart
             Console.WriteLine("Quantity updated.");
         }
 
-        void ClearCart()
+        private void ClearCart()
         {
             if (cart.Count == 0) { Console.WriteLine("Cart is already empty."); return; }
             if (YesNo("Clear cart? (Y/N): ") == "N") return;
@@ -275,7 +339,7 @@ namespace shoppingcart
             Console.WriteLine("Cart cleared.");
         }
 
-        void Checkout()
+        private void Checkout()
         {
             double grand     = cart.GetGrandTotal();
             double discount  = grand >= 5000 ? grand * 0.10 : 0;
@@ -326,7 +390,7 @@ namespace shoppingcart
             foreach (var item in products) item.DisplayProduct();
         }
 
-        void Search()
+        private void Search()
         {
             Console.Write("Search product name: ");
             string key = Console.ReadLine().ToLower();
@@ -337,7 +401,7 @@ namespace shoppingcart
             if (!found) Console.WriteLine("No products found.");
         }
 
-        void FilterCategory()
+        private void FilterCategory()
         {
             string[] cats = { "Electronics", "School", "Clothing", "Hardware" };
             Console.WriteLine("\n[1] Electronics  [2] School  [3] Clothing  [4] Hardware");
@@ -352,7 +416,7 @@ namespace shoppingcart
             if (!found) Console.WriteLine("No products found.");
         }
 
-        string YesNo(string prompt)
+        private string YesNo(string prompt)
         {
             while (true)
             {
@@ -372,4 +436,3 @@ namespace shoppingcart
         }
     }
 }
-
